@@ -1,17 +1,101 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'generated/l10n.dart';
 
 void main() {
-  runApp(myApp());
+  runApp(MaterialApp(home: MyApp(),));
 }
 
-class myApp extends StatelessWidget {
-  const myApp({Key? key}) : super(key: key);
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Screen1 createState() => Screen1();
+}
+
+class Screen1 extends State<MyApp> {
+
+  String imageLink='images/img.jpg';
+
+  @override
+  void initState() {
+    super.initState();
+    Timer(Duration(seconds:3), (){
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>myApp1()));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+               title: Text('BMI Demo'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 300,
+              height: 400,
+              decoration: BoxDecoration(
+                  border: Border.all(color:Colors.purple,
+                                     width:5,
+                                     style: BorderStyle.solid),
+                  borderRadius: BorderRadius.circular(30),
+                  image: DecorationImage(image: AssetImage(imageLink),
+                                         fit: BoxFit.cover),
+                  color: Colors.white,
+              ),
+            ),
+            SizedBox(height:10),
+            Text("我的BMI程式", textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 40,
+                                                 fontFamily: "kai",
+                                                 color: Colors.amber,
+                                                 fontWeight: FontWeight.bold),),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class myApp1 extends StatelessWidget {
+  const myApp1({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(primaryColor: Colors.pinkAccent),
+      localizationsDelegates: [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      theme: ThemeData(primaryColor: Colors.amber,
+                       colorScheme: ColorScheme.light(
+                                      primary: Colors.amber,
+                                      secondary: Colors.pinkAccent,),
+                       appBarTheme: AppBarTheme(backgroundColor: Colors.amber,
+                                                titleTextStyle: TextStyle(color:Colors.deepPurpleAccent,
+                                                                          fontSize: 20),
+                                                iconTheme: IconThemeData(color: Colors.grey),
+                                                toolbarTextStyle: TextStyle(color: Colors.deepPurpleAccent,
+                                                                            fontSize: 20),),
+                      elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(
+                                                                            elevation: 10,
+                                                                            shape: BeveledRectangleBorder(),
+                      )),
+      ),
+      darkTheme: ThemeData(primaryColor: Colors.deepPurpleAccent,
+                           colorScheme: ColorScheme.dark(
+                                           primary: Colors.purple,
+                                           secondary: Colors.red,
+                           ),),
       home: demo(),
     );
   }
@@ -45,18 +129,24 @@ class _demoState extends State<demo> {
       double w=double.parse(weightController.text);
       if (h!=null || w!=null) {
         result1=w/(h*h);
-        if (result1!<18.5) status="過輕";
-        else if (result1!>24) status="過重";
-        else status="正常";
+        if (result1!<18.5) status="${S.of(context).status01}";
+        else if (result1!>24) status="${S.of(context).status03}";
+        else status="${S.of(context).status02}";
       }
     });
+  }
+
+  Color? getTextColor(var s1) {
+    if (s1=="${S.of(context).status02}") return Colors.green;
+    else if (s1=="${S.of(context).status01}") return Colors.amber;
+    else if (s1=="${S.of(context).status03}") return Colors.red;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("BMI Calculator"),
+        title: Text(S.of(context).title),
         centerTitle: true,
         backgroundColor: Colors.pinkAccent,
       ),
@@ -68,9 +158,9 @@ class _demoState extends State<demo> {
               controller: heightController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                           labelText: '請輸入身高',
+                           labelText: '${S.of(context).height1}',
                            hintText: 'cm',
-                           errorText: validateh? '不得為空': null,
+                           errorText: validateh? '${S.of(context).error_text}': null,
                            icon: Icon(Icons.trending_up),
               ),
               style: TextStyle(fontSize: 22),
@@ -80,15 +170,15 @@ class _demoState extends State<demo> {
               controller: weightController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: '請輸入體重',
+                labelText: '${S.of(context).weight1}',
                 hintText: 'Kg',
-                errorText: validatew? '不得為空': null,
+                errorText: validatew? '${S.of(context).error_text}': null,
                 icon: Icon(Icons.trending_down),
               ),
               style: TextStyle(fontSize: 22),
             ),
             SizedBox(height: 35,),
-            ElevatedButton(child: Text('計算', style: TextStyle(color: Colors.white),),
+            ElevatedButton(child: Text('${S.of(context).button1}', style: TextStyle(color: Colors.white),),
                            onPressed: () {
                                       setState(() {
                                         heightController.text.isEmpty? validateh=true : validateh=false;
@@ -101,20 +191,36 @@ class _demoState extends State<demo> {
                            ),
             ),
             SizedBox(height: 15,),
-            Text(result1==null? "":"您的BMI值=${result1!.toStringAsFixed(2)}",
+            Text(result1==null? "":"${S.of(context).result1}=${result1!.toStringAsFixed(2)}",
                  style: TextStyle(color: Colors.blueAccent,
                                   fontSize: 22,
                                   fontWeight: FontWeight.w500),
             ),
             SizedBox(height: 15,),
-            Text(status==null? "":"您的狀態為：${status}",
-                 style: TextStyle(color: Colors.blue,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w500),
-            ),
+            RichText(text: TextSpan(
+              style: TextStyle(color: Colors.blue,
+                               fontSize: 22,
+                               fontWeight: FontWeight.w500),
+              children: [
+                TextSpan(text: status==null? "":"${S.of(context).status00}"),
+                TextSpan(text: status==null? "":"${status}", style: TextStyle(
+                                                                      //color: Colors.greenAccent, 固定顏色
+                                                                      color: getTextColor(status),
+                                                                      fontSize: 22,
+                                                                      fontWeight: FontWeight.w500
+                )),
+              ],
+            ),),
+            //Text(status==null? "":"您的狀態為：${status}",
+            //     style: TextStyle(color: Colors.blue,
+            //                      fontSize: 22,
+            //                      fontWeight: FontWeight.w500),
+            //),
           ],
         ),
       ),
     );
   }
 }
+
+
