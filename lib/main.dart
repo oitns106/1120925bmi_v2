@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'generated/l10n.dart';
+import 'package:animated_background/animated_background.dart';
 
 void main() {
   runApp(MaterialApp(home: MyApp(),));
@@ -15,14 +16,25 @@ class MyApp extends StatefulWidget {
   Screen1 createState() => Screen1();
 }
 
-class Screen1 extends State<MyApp> {
+class Screen1 extends State<MyApp> with SingleTickerProviderStateMixin {
 
   String imageLink='images/img.jpg';
+  var particles=ParticleOptions(
+    baseColor: Colors.cyan,
+    spawnOpacity: 0.0,
+    minOpacity: 0.1,
+    maxOpacity: 0.4,
+    particleCount: 100,
+    spawnMinSpeed: 30,
+    spawnMaxSpeed: 100,
+    spawnMinRadius: 7,
+    spawnMaxRadius: 15,
+  );
 
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds:3), (){
+    Timer(Duration(seconds:10), (){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>myApp1()));
     });
   }
@@ -30,34 +42,36 @@ class Screen1 extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-               title: Text('BMI Demo'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 300,
-              height: 400,
-              decoration: BoxDecoration(
-                  border: Border.all(color:Colors.purple,
-                                     width:5,
-                                     style: BorderStyle.solid),
-                  borderRadius: BorderRadius.circular(30),
-                  image: DecorationImage(image: AssetImage(imageLink),
-                                         fit: BoxFit.cover),
-                  color: Colors.white,
-              ),
+      appBar: AppBar(title: Text('BMI Demo'),),
+      body: AnimatedBackground(
+        vsync: this,
+        behaviour: RandomParticleBehaviour(options:particles),
+        child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 300,
+                  height: 400,
+                  decoration: BoxDecoration(
+                      border: Border.all(color:Colors.purple,
+                                         width:5,
+                                         style: BorderStyle.solid),
+                      borderRadius: BorderRadius.circular(30),
+                      image: DecorationImage(image: AssetImage(imageLink),
+                                             fit: BoxFit.cover),
+                      color: Colors.white,
+                  ),
+                ),
+                SizedBox(height:10),
+                Text("我的BMI程式", textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 40,
+                                                     fontFamily: "kai",
+                                                     color: Colors.amber,
+                                                     fontWeight: FontWeight.bold),),
+              ],
             ),
-            SizedBox(height:10),
-            Text("我的BMI程式", textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 40,
-                                                 fontFamily: "kai",
-                                                 color: Colors.amber,
-                                                 fontWeight: FontWeight.bold),),
-          ],
-        ),
+          ),
       ),
     );
   }
@@ -115,6 +129,7 @@ class _demoState extends State<demo> {
   double? result1;
   var status;
   bool validateh=false, validatew=false;
+  bool visible1=true;
 
   @override
   void dispose() {
@@ -151,6 +166,10 @@ class _demoState extends State<demo> {
         backgroundColor: Colors.pinkAccent,
       ),
       body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(image: AssetImage('assets/test01.jpg'),
+                                 fit: BoxFit.cover),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -182,7 +201,6 @@ class _demoState extends State<demo> {
                            onPressed: () {
                                       setState(() {
                                         heightController.text.isEmpty? validateh=true : validateh=false;
-                                        weightController.text.isEmpty? validatew=true : validatew=false;
                                       });
                                       calculateBMI();
                            },
